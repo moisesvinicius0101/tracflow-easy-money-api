@@ -1,8 +1,9 @@
 
+
 from fastapi import FastAPI
 from app.database import engine
 from app import models
-from app.routers import transaction
+from app.routers import transaction, auth  # <-- importa auth
 from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=engine)
@@ -19,4 +20,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(transaction.router)
+app.include_router(auth.router)        
+app.include_router(transaction.router)  
