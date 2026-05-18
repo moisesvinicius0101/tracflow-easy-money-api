@@ -1,26 +1,22 @@
 
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"sslmode": "require"}
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"sslmode": "require", "connect_timeout": 10},  # psycopg v3 aceita assim
 )
-
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 Base = declarative_base()
-
 
 def get_db():
     db = SessionLocal()
@@ -29,10 +25,10 @@ def get_db():
     finally:
         db.close()
 
-# TESTE DE CONEXÃO: Adicione Apenas nesse moemnto
 if __name__ == "__main__":
     try:
         with engine.connect() as conn:
-            print("✅ SUCESSO: O Python conectou no PostgreSQL!")
+            conn.execute(text("SELECT 1"))
+            print("✅ SUCESSO: Conectou no PostgreSQL!")
     except Exception as e:
-        print(f"❌ ERRO: Não conectou. Motivo: {e}")
+        print(f"❌ ERRO: {e}")
